@@ -29,5 +29,12 @@ export const DataViewTable = styled.table`
   tbody {
     display: flex;
     flex-direction: column;
+
+    tr {
+      transition: all 0.25s ease-in-out;
+      &:hover {
+        background-color: rgba(237, 237, 237, 0.2);
+      }
+    }
   }
 `;

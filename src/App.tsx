@@ -1,13 +1,15 @@
 import React from "react";
-import { Layout } from "./layout";
+import { Layout } from "./components/layout";
 import { useApi } from "./api";
 import { Form, Field } from "react-final-form";
 import { StyledInput } from "./components/input";
 import { Column, Table } from "./components/table";
+import Select from "react-select";
 
 function App() {
   const { client } = useApi();
   const [items, setItems] = React.useState<any>([]);
+  const [customers, setCustomers] = React.useState<any>([]);
   const table_columns: Column[] = [
     {
       key: "id",
@@ -35,12 +37,25 @@ function App() {
       key: "is_discount",
       label: "Discount",
       classes: "text-center",
-      formatter: (v) => (v ? "Yes" : "No"),
+      formatter: (v) => (
+        <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+          <span
+            aria-hidden="true"
+            className={`absolute inset-0 bg-${
+              v ? "green" : "red"
+            }-200 opacity-50 hover:opacity-75 rounded-full`}
+          />
+          <span className="relative pointer-events-none">
+            {v ? "Yes" : "No"}
+          </span>
+        </span>
+      ),
     },
   ];
 
   React.useEffect(() => {
     client.get("/item").then(({ data }) => setItems(data.data));
+    client.get("/customer").then(({ data }) => setCustomers(data.data));
   }, []);
 
   const calculateTotal = (values) => {
@@ -62,7 +77,7 @@ function App() {
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             </p>
-            <div className="flex">
+            <div className="flex items-end justify-between">
               <Field
                 name="memo"
                 type="text"
@@ -71,6 +86,26 @@ function App() {
                     label="Invoice Memo"
                     classes="w-1/2"
                     {...input}
+                  />
+                )}
+              />
+              <Field
+                name="customer"
+                render={({ input }) => (
+                  <Select
+                    {...input}
+                    placeholder="Select a Customer"
+                    options={customers.map((v) => ({
+                      value: v.id,
+                      label: `${v.lastname}, ${v.firstname}`,
+                    }))}
+                    width="15rem"
+                    styles={{
+                      container: (provided, state) => ({
+                        ...provided,
+                        width: state.selectProps.width,
+                      }),
+                    }}
                   />
                 )}
               />
