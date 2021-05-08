@@ -5,11 +5,14 @@ import { Form, Field } from "react-final-form";
 import { StyledInput } from "./components/input";
 import { Column, Table } from "./components/table";
 import Select from "react-select";
+import { Button } from "./components/button";
 
 function App() {
   const { client } = useApi();
   const [items, setItems] = React.useState<any>([]);
   const [customers, setCustomers] = React.useState<any>([]);
+  const [inFlight, setInFlight] = React.useState<boolean>(false);
+
   const table_columns: Column[] = [
     {
       key: "id",
@@ -56,7 +59,7 @@ function App() {
   React.useEffect(() => {
     client.get("/item").then(({ data }) => setItems(data.data));
     client.get("/customer").then(({ data }) => setCustomers(data.data));
-  }, []);
+  }, [client]);
 
   const calculateTotal = (values) => {
     if (values) {
@@ -68,9 +71,33 @@ function App() {
 
   return (
     <Layout>
-      <Form onSubmit={(values) => {}}>
+      <Form
+        onSubmit={(values) => {
+          // client.post("/invoice", );
+          console.log({
+            customer_id: values.customer_id,
+            total: calculateTotal(values.line_items),
+            meta: {
+              lineItems: values.line_items.map((id) =>
+                items.find((item) => {
+                  if (item.id === id) {
+                    return {
+                      id: item.id,
+                      item: item.item,
+                      details: item.details,
+                      quantity: item.in_stock,
+                      price: item.price,
+                    };
+                  }
+                  return null;
+                })
+              ),
+            },
+          });
+        }}
+      >
         {({ handleSubmit, values }) => (
-          <form className="w-2/3 space-y-4" onSubmit={handleSubmit}>
+          <form className="w-2/3 space-y-4">
             <p className="text-right text-lg font-bold">
               Invoice Total: $
               {calculateTotal(values["line_items"])
@@ -90,7 +117,7 @@ function App() {
                 )}
               />
               <Field
-                name="customer"
+                name="customer_id"
                 render={({ input }) => (
                   <Select
                     {...input}
@@ -111,6 +138,7 @@ function App() {
               />
             </div>
             <Table columns={table_columns} data={items} />
+            <Button label="Submit" disabled={inFlight} onClick={handleSubmit} />
           </form>
         )}
       </Form>

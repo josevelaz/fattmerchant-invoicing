@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import "@fontsource/roboto";
 import "tailwindcss/tailwind.css";
-import { ApiProvider } from "./api";
+import { ApiProvider } from "./api/api";
 
 ReactDOM.render(
   <React.StrictMode>
