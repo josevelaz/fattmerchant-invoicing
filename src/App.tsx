@@ -8,6 +8,15 @@ import Select from "react-select";
 import { Button } from "./components/button";
 import { toast } from "react-toastify";
 
+interface FormValues {
+  memo?: string;
+  customer_id?: {
+    label: string;
+    value: string;
+  };
+  line_items: string[];
+}
+
 function App() {
   const { client } = useApi();
   const [items, setItems] = React.useState<any>([]);
@@ -70,8 +79,8 @@ function App() {
     return 0;
   };
 
-  const handleSubmit = (values) => {
-    if (values.line_items === undefined) {
+  const handleSubmit = (values: FormValues) => {
+    if (values.line_items === undefined || values.line_items.length === 0) {
       toast.error("You must select at least one item.");
       return;
     }
