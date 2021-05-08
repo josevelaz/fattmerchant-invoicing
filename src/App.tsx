@@ -73,24 +73,19 @@ function App() {
     <Layout>
       <Form
         onSubmit={(values) => {
-          // client.post("/invoice", );
-          console.log({
-            customer_id: values.customer_id,
+          client.post("/invoice", {
+            customer_id: values.customer_id.value,
             total: calculateTotal(values.line_items),
             meta: {
-              lineItems: values.line_items.map((id) =>
-                items.find((item) => {
-                  if (item.id === id) {
-                    return {
-                      id: item.id,
-                      item: item.item,
-                      details: item.details,
-                      quantity: item.in_stock,
-                      price: item.price,
-                    };
+              lineItems: items.map(
+                (item) =>
+                  values.line_items.includes(item.id) && {
+                    id: item.id,
+                    item: item.item,
+                    details: item.details,
+                    quantity: item.in_stock,
+                    price: item.price,
                   }
-                  return null;
-                })
               ),
             },
           });
