@@ -6,6 +6,7 @@ import { StyledInput } from "./components/input";
 import { Column, Table } from "./components/table";
 import Select from "react-select";
 import { Button } from "./components/button";
+import { toast } from "react-toastify";
 
 function App() {
   const { client } = useApi();
@@ -69,30 +70,46 @@ function App() {
     return 0;
   };
 
+  const handleSubmit = (values) => {
+    if (values.line_items === undefined) {
+      toast.error("You must select at least one item.");
+      return;
+    }
+    setInFlight(true);
+    client
+      .post("/invoice", {
+        customer_id: values.customer_id?.value ?? "",
+        total: calculateTotal(values.line_items),
+        url: "https://omni.fattmerchant.com/#/bill/",
+        meta: {
+          lineItems: items.map(
+            (item) =>
+              values.line_items.includes(item.id) && {
+                id: item.id,
+                item: item.item,
+                details: item.details,
+                quantity: item.in_stock,
+                price: item.price,
+              }
+          ),
+        },
+      })
+      .then((res) => {
+        toast.success("Invoice Successfully Added ✅");
+        setInFlight(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error(err);
+        setInFlight(false);
+      });
+  };
+
   return (
     <Layout>
-      <Form
-        onSubmit={(values) => {
-          client.post("/invoice", {
-            customer_id: values.customer_id.value,
-            total: calculateTotal(values.line_items),
-            meta: {
-              lineItems: items.map(
-                (item) =>
-                  values.line_items.includes(item.id) && {
-                    id: item.id,
-                    item: item.item,
-                    details: item.details,
-                    quantity: item.in_stock,
-                    price: item.price,
-                  }
-              ),
-            },
-          });
-        }}
-      >
+      <Form onSubmit={handleSubmit}>
         {({ handleSubmit, values }) => (
-          <form className="w-2/3 space-y-4">
+          <div className="w-2/3 space-y-4">
             <p className="text-right text-lg font-bold">
               Invoice Total: $
               {calculateTotal(values["line_items"])
@@ -134,7 +151,7 @@ function App() {
             </div>
             <Table columns={table_columns} data={items} />
             <Button label="Submit" disabled={inFlight} onClick={handleSubmit} />
-          </form>
+          </div>
         )}
       </Form>
     </Layout>
