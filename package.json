@@ -28,7 +28,7 @@
   "prettier": {
     "semi": true,
     "bracketSpacing": true,
-    "arrowParens": "avoid"
+    "arrowParens": "always"
   },
   "scripts": {
     "start": "craco start",
