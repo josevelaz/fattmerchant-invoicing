@@ -18,6 +18,22 @@ interface FormValues {
   line_items: string[];
 }
 
+const Badge: React.FC<{ isDiscount: boolean }> = (props) => {
+  return (
+    <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+      <span
+        aria-hidden="true"
+        className={`absolute inset-0 bg-${
+          props.isDiscount ? "green" : "red"
+        }-200 opacity-50 hover:opacity-75 rounded-full`}
+      />
+      <span className="relative pointer-events-none">
+        {props.isDiscount ? "Yes" : "No"}
+      </span>
+    </span>
+  );
+};
+
 function App() {
   const { client } = useApi();
   const [items, setItems] = React.useState<any>([]);
@@ -51,25 +67,21 @@ function App() {
       key: "is_discount",
       label: "Discount",
       classes: "text-center",
-      formatter: (v) => (
-        <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-          <span
-            aria-hidden="true"
-            className={`absolute inset-0 bg-${
-              v ? "green" : "red"
-            }-200 opacity-50 hover:opacity-75 rounded-full`}
-          />
-          <span className="relative pointer-events-none">
-            {v ? "Yes" : "No"}
-          </span>
-        </span>
-      ),
+      formatter: (v) => <Badge isDiscount={v} />,
     },
   ];
 
   React.useEffect(() => {
-    client.get("/item").then(({ data }) => setItems(data.data));
-    client.get("/customer").then(({ data }) => setCustomers(data.data));
+    client
+      .get("/item")
+      .then(({ data }) => setItems(data.data))
+      .catch(() => toast.error("There has been an error fetching the items"));
+    client
+      .get("/customer")
+      .then(({ data }) => setCustomers(data.data))
+      .catch(() =>
+        toast.error("There has been an error fetching the customer information")
+      );
   }, [client]);
 
   const calculateTotal = (values) => {
