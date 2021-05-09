@@ -7,6 +7,7 @@ import { Column, Table } from "./components/table";
 import Select from "react-select";
 import { Button } from "./components/button";
 import { toast } from "react-toastify";
+import { FormApi } from "final-form";
 
 interface FormValues {
   memo?: string;
@@ -79,7 +80,7 @@ function App() {
     return 0;
   };
 
-  const handleSubmit = (values: FormValues) => {
+  const handleSubmit = (values: FormValues, form: FormApi<FormValues, any>) => {
     if (values.line_items === undefined || values.line_items.length === 0) {
       toast.error("You must select at least one item.");
       return;
@@ -105,6 +106,7 @@ function App() {
       })
       .then((res) => {
         toast.success("Invoice Successfully Added ✅");
+        form.restart();
         setInFlight(false);
       })
       .catch((err) => {
@@ -117,7 +119,7 @@ function App() {
   return (
     <Layout>
       <Form onSubmit={handleSubmit}>
-        {({ handleSubmit, values }) => (
+        {({ handleSubmit, values, form }) => (
           <div className="w-2/3 space-y-4">
             <p className="text-right text-lg font-bold">
               Invoice Total: $
