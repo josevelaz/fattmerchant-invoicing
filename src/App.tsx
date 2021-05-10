@@ -133,12 +133,15 @@ function App() {
       <Form onSubmit={handleSubmit}>
         {({ handleSubmit, values, form }) => (
           <div className="w-2/3 space-y-4">
-            <p className="text-right text-lg font-bold">
-              Invoice Total: $
-              {calculateTotal(values["line_items"])
-                .toString()
-                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-            </p>
+            <div className="flex items-center justify-between">
+              <h1>Create an Invoice</h1>
+              <p className="text-right text-lg font-bold">
+                Invoice Total: $
+                {calculateTotal(values["line_items"])
+                  .toString()
+                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+              </p>
+            </div>
             <div className="flex items-end justify-between">
               <Field
                 name="memo"
